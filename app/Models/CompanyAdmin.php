@@ -10,4 +10,9 @@ class CompanyAdmin extends Model
         'company_id',
         'user_id',
     ];
+
+    public function Company ()
+    {
+        return $this->hasOne(Company::class, 'id', 'company_id');
+    }
 }

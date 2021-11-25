@@ -39,6 +39,7 @@
                   <td class="text-center col-1">  {{ $company->Profile->city }}             </td>
                   <td class="text-center col-1">  {{ $company->Profile->state->short_name }}</td>
                   <td class="text-center col-1">  {{ $company->Profile->phone }}            </td>
+                  
                   <td class="col-1">  
                     <div class="progress">
                       <div class="progress-bar " role="progressbar" style="width: 100%;background-color: {!! $company->profile->color !!}" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>    
@@ -52,11 +53,15 @@
                         <a class="mx-2" href="{{ route('livewire.facility', $company->id) }}"><i data-feather="pie-chart"></i>  Facilities </a>
 
                         <a class="mx-2" href=""> <i data-feather="flag"></i>Banners </a>
-
-                        <button wire:click="edit({{ $company->id }})" class="btn btn-link mx-2 p-0"><i data-feather="edit-3"></i>Edit</button>
-
-                        <button wire:click="destroy({{ $company->id }})" class="btn btn-link mx-2 p-0 text-danger" onclick="return confirm('Are you sure?')"><i data-feather="delete"></i>Delete</button>
                       
+                        @if( !auth()->user()->hasAnyRole('Facility Admin|Facility Editor'))
+                          <button wire:click="edit({{ $company->id }})" class="btn btn-link mx-2 p-0"><i data-feather="edit-3"></i>Edit</button>
+                          <button wire:click="destroy({{ $company->id }})" class="btn btn-link mx-2 p-0 text-danger" onclick="return confirm('Are you sure?')"><i data-feather="delete"></i>Delete</button>
+                        @else
+                          <button wire:click="#" class="btn btn-link mx-2 p-0" disabled><i data-feather="edit-3"></i>Edit</button>
+                          <button wire:click="#" class="btn btn-link mx-2 p-0 text-danger" disabled ><i data-feather="delete"></i>Delete</button>
+                        @endif
+
                       </div>
                     </table>      
                   </td>

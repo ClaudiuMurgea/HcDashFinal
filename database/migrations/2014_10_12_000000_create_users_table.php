@@ -44,14 +44,13 @@ class CreateUsersTable extends Migration
     }
 
     
-    private function userAdmin() {
-
+    private function userAdmin() 
+    {
         $user =  User::create([
-             'name' => 'SuperAdmin',
-             'email' => 'admin@splashcreative.com',
-             'password' => Hash::make('P3Gc*+fgtW+j@C5CJG%7!a@d'),
-
-         ]);    
+            'name' => 'SuperAdmin',
+            'email' => 'admin@splashcreative.com',
+            'password' => Hash::make('P3Gc*+fgtW+j@C5CJG%7!a@d'),
+        ]);    
      }
 
 }

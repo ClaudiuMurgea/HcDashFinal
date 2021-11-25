@@ -103,7 +103,9 @@
                                     
                                     <option value="">Select region</option>
                                     @foreach ($regions as $region)
-                                        <option value="{{ $region->id }}">{{ $region->name }}</option>   
+                                        @if(auth()->user()->hasPermissionTo($region->name) || auth()->user()->hasRole('Platform Admin'))
+                                            <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                        @endif
                                     @endforeach
 
                                 </select>

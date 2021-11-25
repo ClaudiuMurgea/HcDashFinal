@@ -11,7 +11,7 @@
 
         @if($updateData == true)
             @include('livewire.User.edit')
-       @endif 
+        @endif 
  
     </div>
  </div>

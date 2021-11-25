@@ -31,7 +31,6 @@
                         </div>
                     </div>
 
-
                     <div class="row">
                         <div class="d-flex justify-content-center">
                             <div class="form-group col-md-6 mt-2">
@@ -66,6 +65,30 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="d-flex justify-content-center">
+                            <div class="form-group col-md-6 mt-2">
+
+                                <label for="role">Region</label>
+                                <select class="form-control" wire:model="region">
+                                    <option value="">Select Region</option>
+
+                                    @foreach ($regions as $region)
+                                        @if(auth()->user()->hasPermissionTo($region->name) || auth()->user()->hasRole('Platform Admin'))
+                                            <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+
+                                @error('region')
+                                    <span class="text-danger">
+                                        {!! $message !!}
+                                    </span>
+                                @enderror
+                                
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="row">
                         <div class="d-flex justify-content-center">
@@ -83,12 +106,24 @@
                                     @endif
 
                                     @if(auth()->user()->hasRole('Regional Admin'))
-                                        @foreach($regionalRoles as $regionalRole)
+                                        @foreach($regionalCanMakeRoles as $regionalRole)
                                             <option value="{{ $regionalRole->id }}">{{ $regionalRole->name }}</option>
                                         @endforeach
                                     @endif
 
-                                </select>
+                                    @if(auth()->user()->hasRole('Corporate Admin'))
+                                        @foreach($corporateCanMakeRoles as $corporateRole)
+                                            <option value="{{ $corporateRole->id }}">{{ $corporateRole->name }}</option>
+                                        @endforeach
+                                    @endif
+
+                                    @if(auth()->user()->hasRole('Facility Admin'))
+                                        @foreach($facilityCanMakeRoles as $facilityRole)
+                                            <option value="{{ $facilityRole->id }}">{{ $facilityRole->name }}</option>
+                                        @endforeach
+                                    @endif
+
+                                </select>          
                                     
                                 @error('role')
                                     <span class="text-danger">

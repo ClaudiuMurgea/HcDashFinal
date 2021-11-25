@@ -4,6 +4,7 @@ namespace App\Http\Livewire;
 
 use Livewire\Component;
 use App\Models\User;
+use App\Models\Region;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permissions;
 use Hash;
@@ -21,12 +22,14 @@ class LiveUser extends Component
     public $email;
     public $password;
     public $role;
+    public $region;
+   
+
 
     public $edit_name;
     public $edit_email;
-    public $edit_role;
 
-    
+
     public function showForm ()
     {
         $this->selectData = false;
@@ -36,19 +39,40 @@ class LiveUser extends Component
 
     public function resetFields ()
     {
-        $this->fullname   ="";
+        $this->name       ="";
         $this->email      ="";
         $this->password   ="";
         $this->role       ="";
+        $this->region     ="";
     }
 
 
     public function render ()
     {   
-        $roles = Role::all();
-        $regionalRoles = Role::where('id', 2)->get();
-        $users = User::all();
-        return view('livewire.live-user', ['users' => $users, 'roles' => $roles, 'regionalRoles' => $regionalRoles])->layout('layouts.admin.master');
+        $roles       = Role::all();
+        $users       = User::all();
+        $regions     = Region::all();
+
+        $regionalCanMakeRoles  = Role::where('id', 2)
+                                   ->orWhere('id', 4)
+                                   ->orWhere('id', 5)
+                                   ->get();  
+
+        $corporateCanMakeRoles = Role::where('id', 4)
+                                   ->orWhere('id', 5)
+                                   ->get();
+
+        $facilityCanMakeRoles  = Role::where('id', 5)
+                                   ->get();
+
+        return view('livewire.live-user', [
+            'users'   => $users,
+            'roles'   => $roles,
+            'regions' => $regions,
+            'regionalCanMakeRoles'  => $regionalCanMakeRoles,
+            'corporateCanMakeRoles' => $corporateCanMakeRoles,
+            'facilityCanMakeRoles'  => $facilityCanMakeRoles
+            ])->layout('layouts.admin.master');
     }
 
 
@@ -58,30 +82,35 @@ class LiveUser extends Component
             'name'      => 'required',
             'email'     => 'required|email|unique:users,email',
             'password'  => 'required',
-            'role'      => 'required|numeric|exists:roles,id',
-        ]);
+            'region'    => '',
+            'role'      => 'required'
 
+        ]);
+        
         $user = new User();
             $user->name     = $validatedData['name'];
             $user->email    = $validatedData['email'];
             $user->password = Hash::make($validatedData['password']);
             $user->save();
 
-        if ($validatedData['role'] == 1)
-        { $user->assignRole(['Platform Admin']); } 
+        if( $validatedData['region'] )
+        {
+            $region = Region::find($validatedData['region']);
+            $user->givePermissionTo($region->name);
+        }
 
-        elseif ($validatedData['role'] == 2) 
-        { $user->assignRole(['Corporate Admin']); }
+            
 
-        elseif ($validatedData['role'] == 3) 
-        { $user->assignRole(['Regional Admin']); }
-
-        elseif ($validatedData['role'] == 4) 
-        { $user->assignRole(['Facility Admin']); }
+        $roles = Role::all();
+            foreach($roles as $role)
+            {
+                if($role->id == $validatedData['role'])
+                {
+                    $user->assignRole([ $role->name ]);
+                }
+            }
         
-        elseif ($validatedData['role'] == 5) 
-        { $user->assignRole(['Facility Editor']); }
-
+        $this->resetFields();
         $this->selectData = true;
         $this->createData = false;
     }
@@ -106,7 +135,8 @@ class LiveUser extends Component
             'edit_name'      => 'required',
             'edit_email'     => 'required|email|unique:users,email',
             'password'       => 'required',
-            'edit_role'      => 'required|numeric|exists:roles,id',
+            'region'         => 'nullable',
+            'role'           => 'required|numeric|exists:roles,id',
         ]);
 
         $user = User::findOrFail($id);
@@ -115,34 +145,18 @@ class LiveUser extends Component
             $user->password = $validatedData['password'];
             $user->save();
 
-        if ($validatedData['edit_role'] == 1)
-        {   
-            $user->removeRole($user->roles->first());
-            $user->assignRole(['Platform Admin']);
-        } 
-
-        elseif($validatedData['edit_role'] == 2) 
-        {
-            $user->removeRole($user->roles->first());
-            $user->assignRole(['Corporate Admin']);
-        } 
+        $region = Region::find($validatedData['region']);
+            $user->syncPermissions();
+            $user->givePermissionTo($region->name);
         
-        elseif($validatedData['edit_role'] == 3)
+        $roles = Role::all();
+        foreach($roles as $role)
         {
-            $user->removeRole($user->roles->first());
-            $user->assignRole(['Regional Admin']);
-        }
-
-        elseif($validatedData['edit_role'] == 4) 
-        {
-            $user->removeRole($user->roles->first());
-            $user->assignRole(['Facility Admin']);
-        }
-
-        elseif($validatedData['edit_role'] == 5) 
-        {
-            $user->removeRole($user->roles->first());
-            $user->assignRole(['Facility Editor']);
+            if($role->id == $validatedData['role'])
+            {
+                $user->removeRole($user->roles->first());
+                $user->assignRole([ $role->name ]);
+            }
         }
 
         $this->selectData = true;

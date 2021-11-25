@@ -66,13 +66,35 @@
                         </div>
                     </div>
 
+                    <div class="row">
+                        <div class="d-flex justify-content-center">
+                            <div class="form-group col-md-6 mt-2">
+
+                                <label for="region">Region</label>
+                                <select class="form-control" wire:model="region">
+                                    <option value="">Select Region</option>
+
+                                    @foreach ($regions as $region)
+                                        <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                    @endforeach
+                                </select>
+
+                                @error('region')
+                                    <span class="text-danger">
+                                        {!! $message !!}
+                                    </span>
+                                @enderror
+                                
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="row">
                         <div class="d-flex justify-content-center">
                             <div class="form-group col-md-6 mt-2">
 
-                                <label for="edit_role">Role</label>
-                                <select class="form-control" wire:model="edit_role" required>
+                                <label for="role">Role</label>
+                                <select class="form-control" wire:model="role" required>
 
                                     <option value="">Select Role</option>
                                     
@@ -82,7 +104,7 @@
 
                                 </select>
                                     
-                                @error('edit_role')
+                                @error('role')
                                     <span class="text-danger">
                                         {!! $message !!}
                                     </span>

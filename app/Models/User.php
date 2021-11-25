@@ -48,4 +48,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(CompanyAdmin::class, 'user_id', 'id');
     }
+
+    public function Region ()
+    {
+        return $this->hasOne(Region::class, 'id', 'id');
+    }
 }
